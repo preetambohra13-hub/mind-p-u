@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BCA ERP | Full Feature Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --mpu-blue: #12155c;
+            --danger: #ff1717;
+            --holiday: #ff0000;
+            --glass: rgba(255, 255, 255, 0.687);
+        }
+
+        * { box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { 
+            margin: 0; background-color: #1a1a1a; color: #333; overflow-x: hidden;
+            background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.7)), 
+                              url('https://mindpoweruniversity.ac.in/wp-content/uploads/elementor/thumbs/mind-power-university-main-buliding-r3bj3j7p2wamj29qide6j0s024v9abp1sv729n0wy2.jpg');
+            background-size: cover; background-position: center; background-attachment: fixed; min-height: 100vh;
+        }
+
+        header { background: var(--mpu-blue); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+
+        .login-card {
+            background: var(--glass); backdrop-filter: blur(15px);
+            width: 100%; max-width: 380px; padding: 40px; border-radius: 30px; 
+            text-align: center; box-shadow: 0 30px 60px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.4);
+        }
+        .login-logo { width: 100px; height: 100px; background: white; border-radius: 50%; padding: 10px; margin: -80px auto 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); object-fit: contain; border: 4px solid white; }
+
+        .selection-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
+        .nav-card { background: var(--glass); border-radius: 20px; padding: 35px 20px; text-align: center; cursor: pointer; transition: 0.3s ease; border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.4); }
+        .nav-card:hover { transform: translateY(-8px); background: #ffffff; border-color: var(--mpu-blue); }
+
+        .table-frame { background: var(--glass); border-radius: 15px; overflow: auto; max-height: 60vh; border: 1px solid #ddd; }
+        table { width: 100%; border-collapse: collapse; min-width: 1500px; }
+        th, td { border: 1px solid #e0e0e0; padding: 12px 6px; text-align: center; font-size: 13px; }
+        .sticky-col { position: sticky; left: 0; background: #f8fbff !important; z-index: 20; text-align: left; padding-left: 15px !important; font-weight: 800; color: #002b5e; border-right: 4px solid var(--mpu-blue) !important; min-width: 240px; }
+        
+        .sun-col { background: #fff1f1 !important; color: var(--danger) !important; }
+        .holiday-cell { background: #f1faf2 !important; color: var(--holiday) !important; font-weight: 800; }
+        .status-p { background: var(--mpu-blue) !important; color: white !important; font-weight: bold; border-radius: 4px; }
+        .status-a { background: var(--danger) !important; color: white !important; font-weight: bold; border-radius: 4px; }
+        
+        .btn { padding: 10px 18px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 13px; }
+        .btn-blue { background: var(--mpu-blue); color: white; }
+        .btn-back { background: #333; color: white; margin-bottom: 15px; }
+        .stat-badge { background: white; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 12px; border: 1px solid #eee; }
+        .hidden { display: none !important; }
+        .v-text { writing-mode: vertical-rl; transform: rotate(180deg); font-size: 10px; font-weight: 900; }
+
+        #undoBar { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 15px 30px; border-radius: 12px; display: none; align-items: center; gap: 20px; z-index: 3000; }
+    </style>
+</head>
+<body>
+
+<div id="loginPage" style="height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;">
+    <div class="login-card">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSTeusJerFncn8R0ggHEixaP1TJkWkWRjNf4A&s" alt="Logo" class="login-logo">
+        <h2 style="color:var(--mpu-blue); margin-bottom: 5px;">BCA ERP LOGIN</h2>
+        <p style="color: #666; font-size: 13px; margin-bottom: 25px;">Full Feature Portal</p>
+        <input type="text" id="username" placeholder="Student/Admin Name" style="width:100%; padding:14px; margin-bottom:12px; border-radius:10px; border:1px solid #ddd; outline: none;">
+        <input type="password" id="password" placeholder="Access Code" style="width:100%; padding:14px; margin-bottom:25px; border-radius:10px; border:1px solid #ddd; outline: none;">
+        <button class="btn btn-blue" style="width:100%; padding:15px; font-size: 16px;" onclick="handleLogin()">Login Dashboard</button>
+    </div>
+</div>
+
+<div id="app" class="hidden">
+    <header>
+        <div style="font-weight: 800; font-size: 18px;">BCA ACADEMIC ERP</div>
+        <div id="userTag" style="font-size: 13px;"></div>
+        <button class="btn" style="background: rgba(255,255,255,0.2); color:white;" onclick="location.reload()">Logout</button>
+    </header>
+
+    <div class="container">
+        <div id="viewSemesters" class="hidden">
+            <h2 style="color:white; text-align:center; text-shadow: 0 2px 10px rgba(0,0,0,0.5);">Select Semester</h2>
+            <div id="semGrid" class="selection-grid"></div>
+        </div>
+
+        <div id="viewMonths" class="hidden">
+            <button class="btn btn-back" onclick="navTo('viewSemesters')">← Back to Semesters</button>
+            <h2 id="monthTitle" style="color:white; text-align:center;"></h2>
+            <div id="monthGrid" class="selection-grid"></div>
+        </div>
+
+        <div id="viewAttendance" class="hidden">
+            <button class="btn btn-back" onclick="navTo('viewMonths')">← Back to Months</button>
+            <div style="background: var(--glass); padding: 15px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 15px;">
+                <div style="display:flex; gap:10px;">
+                    <div class="stat-badge">Students: <span id="totalS">0</span></div>
+                    <div class="stat-badge" style="color:var(--mpu-blue);">Class Avg: <span id="classAvg">0%</span></div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="searchInput" placeholder="Search student..." style="padding:10px; border-radius:8px; border:1px solid #ddd; width:160px;">
+                    <div id="adminBtns" class="hidden" style="display:flex; gap:5px;">
+                        <button class="btn btn-blue" onclick="showStudentModal(true)">+ Add</button>
+                        <button class="btn" style="background:#6a1b9a; color:white;" onclick="showHoliModal(true)">+ Holi</button>
+                        <button class="btn" style="background:var(--holiday); color:white;" onclick="saveData()">Save 💾</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-frame">
+                <table id="mainTable">
+                    <thead><tr id="tHead"></tr></thead>
+                    <tbody id="tBody"></tbody>
+                </table>
+            </div>
+
+            <div style="margin-top: 30px; text-align: center;">
+                <button class="btn btn-blue" onclick="toggleAnalytics()">View Attendance Analytics 📈</button>
+                <div id="analyticsSection" class="hidden" style="margin-top: 20px; background:white; border-radius:20px; padding:20px; height:350px;">
+                    <canvas id="attChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="undoBar">
+    <span>Record updated</span>
+    <button class="btn btn-blue" onclick="undoDelete()">UNDO</button>
+</div>
+
+<div id="sModal" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; border-radius:25px; z-index:2000; width:90%; max-width:320px; box-shadow:0 0 100px rgba(0,0,0,0.5);">
+    <h3>New Admission</h3>
+    <input type="text" id="newStudentName" placeholder="Full Name" style="width:100%; padding:14px; margin-bottom:20px; border:1px solid #ddd; border-radius:12px;">
+    <button class="btn btn-blue" style="width:100%;" onclick="addNewStudent()">Confirm Add</button>
+    <button class="btn" style="width:100%; margin-top:10px; background: #eee;" onclick="showStudentModal(false)">Cancel</button>
+</div>
+
+<div id="hModal" class="hidden" style="position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:white; padding:30px; border-radius:25px; z-index:2000; width:90%; max-width:320px; box-shadow:0 0 100px rgba(0,0,0,0.5);">
+    <h3>Declare Holiday</h3>
+    <input type="number" id="hDate" placeholder="Date (1-31)" style="width:100%; padding:12px; margin-bottom:10px; border:1px solid #ddd; border-radius:12px;">
+    <input type="text" id="hReason" placeholder="Reason/Occasion" style="width:100%; padding:12px; margin-bottom:20px; border:1px solid #ddd; border-radius:12px;">
+    <button class="btn btn-blue" style="width:100%;" onclick="addHoliday()">Save Holiday</button>
+    <button class="btn" style="width:100%; margin-top:10px; background: #eee;" onclick="showHoliModal(false)">Cancel</button>
+</div>
+
+<script>
+    const DB_KEY = 'BCA_FULL_ERP_V5';
+    
+    // Yearly Holidays Database (2025-2028)
+    const HOLIDAY_MASTER = {
+        "fixed": { "0_26": "REP DAY", "7_15": "IND DAY", "9_2": "GANDHI J" },
+        "2025": { "2_14": "HOLI", "2_31": "EID-UL-F", "7_16": "JANMAS", "9_20": "DIWALI", "11_25": "X-MAS" },
+        "2026": { "2_4": "HOLI", "2_20": "EID-UL-F", "7_5": "JANMAS", "10_9": "DIWALI", "11_25": "X-MAS" },
+        "2027": { "2_22": "HOLI", "2_10": "EID-UL-F", "7_25": "JANMAS", "9_29": "DIWALI", "11_25": "X-MAS" },
+        "2028": { "2_11": "HOLI", "2_28": "EID-UL-F", "7_13": "JANMAS", "10_18": "DIWALI", "11_25": "X-MAS" }
+    };
+
+    const ALL_MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const SEM_DATA = {
+        1: { year: 2025, months: [6, 7, 8, 9, 10, 11] },
+        2: { year: 2026, months: [0, 1, 2, 3, 4, 5] },
+        3: { year: 2026, months: [6, 7, 8, 9, 10, 11] },
+        4: { year: 2027, months: [0, 1, 2, 3, 4, 5] },
+        5: { year: 2027, months: [6, 7, 8, 9, 10, 11] },
+        6: { year: 2028, months: [0, 1, 2, 3, 4, 5] }
+    };
+
+    const DEFAULT_STUDENTS = ["Aashna singh","Adanan","Aditya Gautam","Ahshan","Aksha khan","Arjun singh","Arman","Avantika shilpi","Bhawana bisht","Bhumika belwal","Chandresh Joshi","Dipika bisht","Divyanshu Bhatt","Diya Pandey","Gaurav Joshi","Gaurav Kumar","Gitanjali Pandey","Harman Kaur","Himanshu nayal","Hrshit mehara","Jatin palariya","Jeet Rana","Karan naugai","Khushi Kaur","Kunal","Lokesh Kumar","Manmohan palariya","Minhal raza","Namit palariya","Neeraj Bora","Neha bughani","Pawan Kumar tamta","Prachi Mehra","Prajwal Singh mahara","Preetam Singh Bohra","Pyush Adhikari","Sanjay Bohra","Saransh Kushwaha","Saurabh nayal","Shivani diwakar","Shubham singh","Sumit kumar","Vaibhav kapil","Vansh Gupta","Vidya Saxena","Wasiq Ali"];
+
+    let state = { 
+        user: null, role: null, curSem: 1, curMonth: 6, curYear: 2025,
+        lastDeleted: null, undoTimeout: null,
+        db: JSON.parse(localStorage.getItem(DB_KEY) || JSON.stringify({att:{}, hol:{}, students: DEFAULT_STUDENTS})) 
+    };
+    let chartInstance = null;
+
+    function getHolidayName(year, month, day) {
+        if (HOLIDAY_MASTER.fixed[`${month}_${day}`]) return HOLIDAY_MASTER.fixed[`${month}_${day}`];
+        if (HOLIDAY_MASTER[year] && HOLIDAY_MASTER[year][`${month}_${day}`]) return HOLIDAY_MASTER[year][`${month}_${day}`];
+        return state.db.hol[`${state.curSem}_${month}_${day}`] || null;
+    }
+
+    function handleLogin() {
+        const u = document.getElementById('username').value.trim();
+        const p = document.getElementById('password').value.trim();
+        if(p === "Admin@2026") { state.role='admin'; state.user=u||"ADMIN"; showApp(); }
+        else if(p === "Student@2026") { 
+            const found = state.db.students.find(s => s.toLowerCase() === u.toLowerCase());
+            if(found) { state.role='student'; state.user=found.toUpperCase(); showApp(); }
+            else alert("Name not found!");
+        } else alert("Invalid Password!");
+    }
+
+    function showApp() {
+        document.getElementById('loginPage').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+        document.getElementById('userTag').innerText = "Logged in as: " + state.user;
+        if(state.role==='admin') document.getElementById('adminBtns').classList.remove('hidden');
+        renderSemesters(); navTo('viewSemesters');
+    }
+
+    function navTo(id) {
+        ['viewSemesters', 'viewMonths', 'viewAttendance'].forEach(v => document.getElementById(v).classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function renderSemesters() {
+        document.getElementById('semGrid').innerHTML = Object.keys(SEM_DATA).map(s => `
+            <div class="nav-card" onclick="selectSemester(${s})">
+                <h3>Semester ${s}</h3>
+                <p>Academic Year ${SEM_DATA[s].year}</p>
+            </div>`).join('');
+    }
+
+    function selectSemester(s) {
+        state.curSem = s; state.curYear = SEM_DATA[s].year;
+        renderMonths(); navTo('viewMonths');
+        document.getElementById('monthTitle').innerText = `Semester ${s} (${state.curYear})`;
+    }
+
+    function renderMonths() {
+        const months = SEM_DATA[state.curSem].months;
+        document.getElementById('monthGrid').innerHTML = months.map(idx => `
+            <div class="nav-card" onclick="selectMonth(${idx})">
+                <h3>${ALL_MONTHS[idx]}</h3>
+                <p>${state.curYear}</p>
+            </div>`).join('');
+    }
+
+    function selectMonth(m) { state.curMonth = m; renderTable(); navTo('viewAttendance'); }
+
+    function renderTable() {
+        const days = new Date(state.curYear, state.curMonth + 1, 0).getDate();
+        const search = document.getElementById('searchInput').value.toLowerCase();
+        state.db.students.sort();
+
+        let h = `<th class="sticky-col">NAME</th>`;
+        for(let d=1; d<=days; d++) {
+            const dateObj = new Date(state.curYear, state.curMonth, d);
+            const isSun = dateObj.getDay() === 0;
+            const hReason = getHolidayName(state.curYear, state.curMonth, d);
+            let cls = isSun ? 'sun-col' : (hReason ? 'holiday-cell' : '');
+            h += `<th class="${cls}">${d}<br><small>${isSun ? 'SUN' : (hReason ? 'HOL' : ["S","M","T","W","T","F","S"][dateObj.getDay()])}</small></th>`;
+        }
+        document.getElementById('tHead').innerHTML = h;
+
+        let b = '', totP = 0, totW = 0;
+        state.db.students.forEach(s => {
+            if(state.role === 'student' && s.toUpperCase() !== state.user) return;
+            if(search && !s.toLowerCase().includes(search)) return;
+
+            let sP = 0, sW = 0, cells = '';
+            for(let d=1; d<=days; d++) {
+                const dateObj = new Date(state.curYear, state.curMonth, d);
+                const isSun = dateObj.getDay() === 0;
+                const hReason = getHolidayName(state.curYear, state.curMonth, d);
+                const key = `${state.curYear}_${state.curMonth}_${s}_${d}`;
+                const val = state.db.att[key] || '';
+                
+                let cls = '', content = val;
+                if(isSun) { cls = 'sun-col'; content = 'S'; }
+                else if(hReason) { cls = 'holiday-cell'; content = `<div class="v-text">${hReason}</div>`; }
+                else {
+                    sW++; totW++;
+                    if(val === 'P') { cls = 'status-p'; sP++; totP++; }
+                    else if(val === 'A') cls = 'status-a';
+                }
+                const click = (state.role === 'admin' && !isSun && !hReason) ? `onclick="toggleAtt('${s}',${d})"` : '';
+                cells += `<td class="${cls}" ${click}>${content}</td>`;
+            }
+            const perc = sW > 0 ? ((sP/sW)*100).toFixed(0) : 100;
+            b += `<tr><td class="sticky-col">${s}<br><small>${perc}% Attendance</small></td>${cells}</tr>`;
+        });
+        document.getElementById('tBody').innerHTML = b;
+        document.getElementById('totalS').innerText = state.db.students.length;
+        document.getElementById('classAvg').innerText = totW > 0 ? ((totP/totW)*100).toFixed(1) + '%' : '100%';
+        renderAdminUI();
+    }
+
+    function toggleAtt(s, d) {
+        const key = `${state.curYear}_${state.curMonth}_${s}_${d}`;
+        const cur = state.db.att[key];
+        state.db.att[key] = cur === 'P' ? 'A' : (cur === 'A' ? '' : 'P');
+        renderTable();
+    }
+
+    function showStudentModal(s) { document.getElementById('sModal').className = s ? '' : 'hidden'; }
+    function addNewStudent() {
+        const n = document.getElementById('newStudentName').value.trim();
+        if(n) { state.db.students.push(n); showStudentModal(false); renderTable(); }
+    }
+    function removeStudent(n) {
+        if(confirm(`Confirm delete ${n}?`)) {
+            state.lastDeleted = { name: n };
+            state.db.students = state.db.students.filter(s => s !== n);
+            document.getElementById('undoBar').style.display = 'flex';
+            clearTimeout(state.undoTimeout);
+            state.undoTimeout = setTimeout(() => document.getElementById('undoBar').style.display = 'none', 5000);
+            renderTable();
+        }
+    }
+    function undoDelete() { if(state.lastDeleted) { state.db.students.push(state.lastDeleted.name); state.lastDeleted = null; document.getElementById('undoBar').style.display = 'none'; renderTable(); } }
+    
+    function showHoliModal(s) { document.getElementById('hModal').className = s ? '' : 'hidden'; }
+    function addHoliday() {
+        const d = document.getElementById('hDate').value;
+        const r = document.getElementById('hReason').value;
+        if(d && r) { state.db.hol[`${state.curSem}_${state.curMonth}_${d}`] = r.toUpperCase(); showHoliModal(false); renderTable(); }
+    }
+    function delH(k) { delete state.db.hol[k]; renderTable(); }
+
+    function renderAdminUI() {
+        let h = '';
+        for(let k in state.db.hol) {
+            if(k.startsWith(state.curSem+'_'+state.curMonth))
+                h += `<div class="stat-badge">${k.split('_')[2]}: ${state.db.hol[k]} <span onclick="delH('${k}')" style="color:red; cursor:pointer;">✖</span></div>`;
+        }
+    }
+
+    function toggleAnalytics() {
+        const sec = document.getElementById('analyticsSection');
+        sec.classList.toggle('hidden');
+        if(!sec.classList.contains('hidden')) renderChart();
+    }
+
+    function renderChart() {
+        const days = new Date(state.curYear, state.curMonth + 1, 0).getDate();
+        const labels = Array.from({length: days}, (_, i) => i + 1);
+        const data = labels.map(d => state.db.students.filter(s => state.db.att[`${state.curYear}_${state.curMonth}_${s}_${d}`] === 'P').length);
+        const ctx = document.getElementById('attChart').getContext('2d');
+        if(chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: labels, datasets: [{ label: 'Students Present', data: data, borderColor: '#004aad', fill: true, backgroundColor: 'rgba(0,74,173,0.1)' }] },
+            options: { responsive: true, maintainAspectRatio: false }
+        });
+    }
+
+    function saveData() { localStorage.setItem(DB_KEY, JSON.stringify(state.db)); alert("Saved Successfully! ✅"); }
+    document.getElementById('searchInput').oninput = renderTable;
+</script>
+
+</body>
+</html>
